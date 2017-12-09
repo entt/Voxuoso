@@ -1,0 +1,27 @@
+{
+	"expo": {
+		"name": "Voxuoso",
+		"description": "Laryngitis detection app.",
+		"slug": "voxuoso",
+		"privacy": "public",
+		"sdkVersion": "21.0.0",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"primaryColor": "#ffffff",
+		"icon": "./assets/icons/icon.png",
+		"loading": {
+			"hideExponentText": false,
+			"icon": "./assets/icons/icon.png"
+		},
+		"packagerOpts": {
+			"assetExts": ["ttf", "mp4", "mp3"]
+		},
+		"ios": {
+			"bundleIdentifier": "com.entt.voxuoso",
+			"supportsTablet": true
+		},
+		"android": {
+			"package": "com.entt.voxuoso"
+		}
+	}
+}

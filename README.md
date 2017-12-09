@@ -1,2 +1,4 @@
 # Voxuoso
-A laryngeal cancer detection mobile app using React-Native and Python.
+
+## Introduction
+A laryngitis mobile detection app, which will use Deep Recurrent Neural Networks (DRNN) and objective acoustic parameters.

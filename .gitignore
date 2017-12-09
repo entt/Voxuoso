@@ -1,0 +1,6 @@
+.DS_Store
+venv
+node_modules
+static/bundle.js
+.expo
+npm-debug.*
