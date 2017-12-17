@@ -1,6 +1,16 @@
 .DS_Store
-venv
+
+# NPM
 node_modules
-static/bundle.js
-.expo
 npm-debug.*
+
+# Expo
+.expo
+
+# Jupyter 
+.ipynb_checkpoints
+*.ipynb
+
+# Python
+*.pyc
+venv
