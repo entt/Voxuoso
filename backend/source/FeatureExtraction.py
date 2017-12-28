@@ -35,8 +35,8 @@ def feature_extraction(audio):
     features = aFE.stFeatureExtraction(
         signal,
         sample_rate,
-        0.10 * sample_rate,
-        0.10 * sample_rate,
+        0.15 * sample_rate,
+        0.15 * sample_rate,
     )
 
     return features
