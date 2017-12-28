@@ -26,9 +26,15 @@ def feature_extraction(audio):
         -21-32:     Chroma Vector
         -33:        Chroma Deviation
     ARGUMENTS:
+<<<<<<< HEAD
         - audio:    the input audio signal
     RETURNS:
         - features: an array of features (numOfFeatures x numOfWindows)
+=======
+        - audio:        the input audio signal
+    RETURNS:
+        - features:     an array of features (numOfFeatures x numOfShortTermWindows)
+>>>>>>> 8aeddc75eb0cf8c1ebc1d761a8688d9aa71cad5d
     """
 
     [sample_rate, signal] = aIO.readAudioFile(audio)
