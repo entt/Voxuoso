@@ -26,7 +26,6 @@ def feature_extraction(audio):
         -21-32:     Chroma Vector
         -33:        Chroma Deviation
     ARGUMENTS:
-<<<<<<< HEAD
         - audio:    the input audio signal
     RETURNS:
         - features: an array of features (numOfFeatures x numOfWindows)
