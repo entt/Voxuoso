@@ -9,3 +9,4 @@ Werkzeug==0.12.2
 requests==2.18.4
 pyAudioAnalysis==0.1.3
 flake8==3.5.0
+jupyter==1.0.0
