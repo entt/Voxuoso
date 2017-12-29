@@ -13,3 +13,5 @@ jupyter==1.0.0
 python-magic==0.4.15
 python-magic-bin==0.4.14
 floyd-cli==0.10.28
+Keras==2.1.2
+pandas==0.21.1
