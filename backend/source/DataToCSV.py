@@ -13,7 +13,7 @@ import FeatureExtraction as FE
 module_directory = abspath(dirname(__file__))
 
 # Directory of voices
-audio_dir = join(module_directory, "../../../Voice Data/")
+audio_dir = join(module_directory, "./data/Voices/")
 
 # Directory of input file for training
 csv_dir = join(module_directory, "./data/Inputs.csv")
