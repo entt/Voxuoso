@@ -30,3 +30,26 @@ def silence_removal(audio):
     )
 
     return segments
+
+
+if __name__ == '__main__':
+    from os import listdir
+    from os.path import (
+        isfile,
+        join,
+        abspath,
+        dirname,
+    )
+
+    module_directory = abspath(dirname(__file__))
+
+    audio_dir = join(module_directory, "./data/Voices/")
+
+    csv_dir = join(module_directory, "./data/Inputs.csv")
+
+    audio_files = [join(audio_dir, f)
+                   for f in listdir(audio_dir) if isfile(join(audio_dir, f))]
+
+    for file in audio_files:
+        segments = silence_removal(file)
+        print "File:{}\tSegments:{}".format(file, segments)
