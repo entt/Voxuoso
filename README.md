@@ -7,7 +7,7 @@ This is a ReactNative mobile application served over Flask microframework.
 ## Requirements
 **Backend requirements**
 * Python: 2.7
-* See [requirements.txt](https://github.com/entt/Voxuoso/blob/master/backend/requirements.txt)
+* See [virtual_requirements.txt](https://github.com/entt/Voxuoso/blob/master/backend/virtual_requirements.txt)
 
 **Frontend**
 * NodeJS: 6.11.4
@@ -38,7 +38,8 @@ cd frontend
 # Hot reload, use Expo client to scan QR code
 exp start
 
-# If you have a connected Android device use (still hot-reload),
+# If you have a connected Android device use,
+# Note: Hot-reload
 exp android
 
 # For backend
