@@ -9,20 +9,13 @@ from os.path import (
 
 import FeatureExtraction as FE
 
-# Where the module is
 module_directory = abspath(dirname(__file__))
+audio_dir = join(module_directory, './data/Voices/')
+csv_dir = join(module_directory, './data/Inputs.csv')
 
-# Directory of voices
-audio_dir = join(module_directory, "./data/Voices/")
-
-# Directory of input file for training
-csv_dir = join(module_directory, "./data/Inputs.csv")
-
-# List of voices in directory
 audio_files = [join(audio_dir, f)
                for f in listdir(audio_dir) if isfile(join(audio_dir, f))]
 
-# Headers for CSV
 fields = [
     'file_name',
     'MFCC1', 'MFCC2', 'MFCC3', 'MFCC4',
@@ -31,17 +24,16 @@ fields = [
     'MFCC13'
 ]
 
-# Open writing file
-with open(csv_dir, "w+") as write:
+with open(csv_dir, 'w+') as write:
     writer = csv.DictWriter(write, fieldnames=fields)
     writer.writeheader()
 
     for line in write:
         for file in audio_files:
-            print "Current file: " + file.split("/")[-1]
+            print 'Current file: ' + file.split('/')[-1]
             features = FE.feature_extraction(file)
             writer.writerow({
-                'file_name': file.split("/")[-1],
+                'file_name': file.split('/')[-1],
                 'MFCC1': features[8],
                 'MFCC2': features[9],
                 'MFCC3': features[10],

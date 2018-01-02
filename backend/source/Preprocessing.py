@@ -23,7 +23,7 @@ def silence_removal(audio):
     segments = aS.silenceRemoval(
         signal,
         sample_rate,
-        0.025, 0.025,
+        0.05, 0.05,
         smoothWindow=1.0,
         Weight=0.6,
         plot=False
@@ -43,13 +43,13 @@ if __name__ == '__main__':
 
     module_directory = abspath(dirname(__file__))
 
-    audio_dir = join(module_directory, "./data/Voices/")
+    audio_dir = join(module_directory, './data/Voices/')
 
-    csv_dir = join(module_directory, "./data/Inputs.csv")
+    csv_dir = join(module_directory, './data/Inputs.csv')
 
     audio_files = [join(audio_dir, f)
                    for f in listdir(audio_dir) if isfile(join(audio_dir, f))]
 
     for file in audio_files:
         segments = silence_removal(file)
-        print "File:{}\tSegments:{}".format(file, segments)
+        print 'File: {}\tSegments: {}'.format(file, segments)

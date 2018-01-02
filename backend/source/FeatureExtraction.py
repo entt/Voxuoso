@@ -35,8 +35,8 @@ def feature_extraction(audio):
     features = aFE.stFeatureExtraction(
         signal,
         sample_rate,
-        0.10 * sample_rate,
-        0.10 * sample_rate,
+        0.05 * sample_rate,
+        0.05 * sample_rate,
     )
 
     return features
@@ -53,13 +53,14 @@ if __name__ == '__main__':
 
     module_directory = abspath(dirname(__file__))
 
-    audio_dir = join(module_directory, "./data/Voices/")
+    audio_dir = join(module_directory, './data/Voices/')
 
-    csv_dir = join(module_directory, "./data/Inputs.csv")
+    csv_dir = join(module_directory, './data/Inputs.csv')
 
     audio_files = [join(audio_dir, f)
                    for f in listdir(audio_dir) if isfile(join(audio_dir, f))]
 
     for file in audio_files:
         features = feature_extraction(file)
-        print "File:{}\tFeatures:{}".format(file, features)
+        print 'Feature shape: {}'.format(features.shape)
+        print 'File: {}\tFeatures: {}'.format(file, features)
