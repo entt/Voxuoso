@@ -5,13 +5,14 @@
     (c) Roent Jogno AY 2017 - 2018
 """
 from keras import optimizers
-
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers.recurrent import LSTM
 
 from numpy import array, pad
 from pandas import read_csv
+
+from math import floor
 
 
 def create_sequence(input, output):
@@ -60,19 +61,22 @@ def build_model():
         - model:    neural network model
     """
     model = Sequential()
-    model.add(LSTM(
-        13,
+    model.add(LSTM(128,
+        dropout=0.05,
+        recurrent_dropout=0.25,
         return_sequences=True,
-        input_shape=(INPUT_DIM, FEATURE_LEN))
-    )
-    model.add(LSTM(13, return_sequences=True))
-    model.add(LSTM(13))
-    model.add(Dense(1, activation='sigmoid'))
+        input_shape=(INPUT_DIM, FEATURE_LEN)
+    ))
+    model.add(LSTM(64,
+        dropout=0.05,
+        recurrent_dropout=0.25
+    ))
+    model.add(Dense(1))
 
     model.compile(
-        optimizer=optimizers.SGD(lr=0.1),
-        loss='mean_squared_error',
-        metrics=['accuracy']
+        optimizer=optimizers.SGD(lr=0.01),
+        loss='mae',
+        metrics=['mae']
     )
 
     return model
@@ -89,7 +93,7 @@ def train_model(model, input, output, epochs, split, model_name='Model'):
         - split:        percentage of training and test split
         - model_name:   name of model to be saved
     """
-    model.fit(
+    history = model.fit(
         array(input),
         array(output),
         epochs=epochs,
@@ -97,6 +101,17 @@ def train_model(model, input, output, epochs, split, model_name='Model'):
     )
 
     model.save('./data/{}.h5'.format(model_name))
+
+    return history
+
+
+def test_model(model, input, output):
+    x_test = input[floor(len(input) * 0.8):]
+    y_test = output[floor(len(output) * 0.8):]
+
+    score = model.evaluate(x_test, y_test, verbose=0)
+    print("Test score: ", score[0])
+    print("Test accuracy: ", score[1])
 
 
 if __name__ == '__main__':
@@ -118,4 +133,4 @@ if __name__ == '__main__':
 
     input_sequence, output_sequence = create_sequence(INPUT_CSV, OUTPUT_CSV)
 
-    train_model(model, input_sequence, output_sequence, 10000, 0.2)
+    history = train_model(model, input_sequence, output_sequence, 10000, 0.2)
