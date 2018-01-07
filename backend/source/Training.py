@@ -9,10 +9,30 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers.recurrent import LSTM
 
-from numpy import array, pad
+from numpy import (
+    array,
+    pad,
+    linspace,
+    interp,
+    unique
+)
 from pandas import read_csv
 
 from math import floor
+
+INPUT_CSV = "./data/Inputs.csv"
+OUTPUT_CSV = "./data/Outputs.csv"
+
+FEATURE_LEN = 100
+INPUT_DIM = 13
+OUTPUT_DIM = 1
+
+headers = [
+    'MFCC1', 'MFCC2', 'MFCC3', 'MFCC4',
+    'MFCC5', 'MFCC6', 'MFCC7', 'MFCC8',
+    'MFCC9', 'MFCC10', 'MFCC11', 'MFCC12',
+    'MFCC13'
+]
 
 
 def create_sequence(input, output):
@@ -51,6 +71,13 @@ def create_sequence(input, output):
             item[f_index] = feature
         input_sequence[index] = item
 
+    unique_output = unique(output_sequence)
+    boundaries = linspace(0, 1.0, num=len(unique_output))
+    interpolated = interp(output_sequence, unique_output, boundaries)
+
+    for index, item in enumerate(interpolated):
+        output_sequence[index] = array(item)
+
     return input_sequence, output_sequence
 
 
@@ -61,22 +88,24 @@ def build_model():
         - model:    neural network model
     """
     model = Sequential()
-    model.add(LSTM(128,
-        dropout=0.05,
-        recurrent_dropout=0.25,
+    model.add(LSTM(64,
+        dropout=0.10,
+        recurrent_dropout=0.35,
         return_sequences=True,
+        activation='sigmoid',
         input_shape=(INPUT_DIM, FEATURE_LEN)
     ))
     model.add(LSTM(64,
-        dropout=0.05,
-        recurrent_dropout=0.25
+        dropout=0.10,
+        recurrent_dropout=0.35,
+        activation='sigmoid'
     ))
-    model.add(Dense(1))
+    model.add(Dense(1, activation='sigmoid'))
 
     model.compile(
         optimizer=optimizers.SGD(lr=0.01),
-        loss='mae',
-        metrics=['mae']
+        loss='mse',
+        metrics=['mae', 'logcosh']
     )
 
     return model
@@ -115,20 +144,6 @@ def test_model(model, input, output):
 
 
 if __name__ == '__main__':
-    INPUT_CSV = "./data/Inputs.csv"
-    OUTPUT_CSV = "./data/Outputs.csv"
-
-    FEATURE_LEN = 100
-    INPUT_DIM = 13
-    OUTPUT_DIM = 1
-
-    headers = [
-        'MFCC1', 'MFCC2', 'MFCC3', 'MFCC4',
-        'MFCC5', 'MFCC6', 'MFCC7', 'MFCC8',
-        'MFCC9', 'MFCC10', 'MFCC11', 'MFCC12',
-        'MFCC13'
-    ]
-
     model = build_model()
 
     input_sequence, output_sequence = create_sequence(INPUT_CSV, OUTPUT_CSV)
