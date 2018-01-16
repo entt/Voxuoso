@@ -11,6 +11,7 @@ from numpy import (
     interp,
     unique
 )
+from matplotlib import pyplot as plt
 
 from math import floor
 from os.path import (
@@ -100,16 +101,10 @@ class Train:
         """
         model = Sequential()
         model.add(LSTM(64,
-            dropout=0.10,
+            dropout=0.20,
             recurrent_dropout=0.35,
-            return_sequences=True,
             activation='sigmoid',
             input_shape=(self.input_dim, self.feature_length)
-        ))
-        model.add(LSTM(64,
-            dropout=0.10,
-            recurrent_dropout=0.35,
-            activation='sigmoid'
         ))
         model.add(Dense(self.output_dim, activation='sigmoid'))
 
@@ -122,7 +117,7 @@ class Train:
         return model
 
 
-    def train_model(self, model, input, output, epochs, split, model_name='Model'):
+    def train_model(self, model, input, output, epochs, split=0, model_name='Model'):
         """
         Trains the model and saves it in HDF5 format.
         ARGUMENTS:
@@ -138,7 +133,7 @@ class Train:
             array(input),
             array(output),
             epochs=epochs,
-            validation_split=split,
+            validation_split=split
         )
         end_training = time()
 
@@ -149,9 +144,9 @@ class Train:
         return history, self.training_time
 
 
-    def test_model(self, model, input, output):
-        x_test = input[floor(len(input) * 0.8):]
-        y_test = output[floor(len(output) * 0.8):]
+    def test_model(self, model, input_seq, output_seq):
+        x_test = input_seq[int(floor(len(input_seq) * 0.8)):]
+        y_test = output_seq[int(floor(len(output_seq) * 0.8)):]
 
         score = model.evaluate(x_test, y_test, verbose=0)
         print("Test score: ", score[0])
@@ -165,6 +160,10 @@ if __name__ == '__main__':
 
     input_sequence, output_sequence = train.create_sequence(train.input_csv, train.output_csv)
 
-    history, time = train.train_model(model, input_sequence, output_sequence, 10000, 0.2)
+    history, time = train.train_model(model, input_sequence, output_sequence, 10000)
+
+    # plt.plot(history.history['loss'])
+    # plt.plot(history.history['mean_absolute_error'])
+    # plt.show()
 
     print "Training time: {}".format(time)
