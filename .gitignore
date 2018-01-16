@@ -14,7 +14,7 @@ npm-debug.*
 
 # Python
 *.pyc
-virtual
+venv
 
 #FloydHub
 .floyd*
