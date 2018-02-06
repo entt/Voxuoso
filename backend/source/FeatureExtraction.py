@@ -7,8 +7,7 @@ from pyAudioAnalysis import (
 class FeatureExtraction:
     """
     Signal processing:
-        Feature Extraction:
-            - MFCC
+        - Feature Extraction
     =========================
     Roent Jogno AY 2017 - 2018
     """
@@ -53,7 +52,7 @@ if __name__ == '__main__':
         dirname,
     )
 
-    audio_dir = join(abspath(dirname(__file__)), '/data/Voices/')
+    audio_dir = join(abspath(dirname(__file__)), 'data/Voices/')
 
     audio_files = [join(audio_dir, f)
                    for f in listdir(audio_dir) if isfile(join(audio_dir, f))]

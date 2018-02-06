@@ -1,7 +1,12 @@
 from keras import optimizers
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import (
+    Dense,
+    Flatten,
+    Dropout
+)
 from keras.layers.recurrent import LSTM
+from keras.callbacks import CSVLogger
 
 from pandas import read_csv
 from numpy import (
@@ -9,9 +14,10 @@ from numpy import (
     pad,
     linspace,
     interp,
-    unique
+    unique,
+    genfromtxt
 )
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
 
 from math import floor
 from os.path import (
@@ -25,15 +31,17 @@ from time import time
 class Train:
     """
     Machine Learning:
+        - Data Preparation
+        - Ouput Interpolation
         - Training
+        - Plot Loss History
     =========================
     Roent Jogno AY 2017 - 2018
     """
-
     def __init__(self):
         self.input_csv = join(abspath(dirname(__file__)), './data/Inputs.csv')
         self.output_csv = join(abspath(dirname(__file__)), './data/Outputs.csv')
-        
+
         self.feature_length = 100
         self.input_dim = 13
         self.output_dim = 1
@@ -87,83 +95,139 @@ class Train:
         boundaries = linspace(0, 1.0, num=len(unique_output))
         interpolated = interp(output_sequence, unique_output, boundaries)
 
+        print(interpolated)
+
         for index, item in enumerate(interpolated):
             output_sequence[index] = array(item)
 
         return input_sequence, output_sequence
 
-
-    def build_model(self):
+    def build_model(self, mode):
         """
         Builds neural network model.
+        ARGUMENTS:
+            - mode:     either MLP or DRNN
         RETURNS:
             - model:    neural network model
         """
-        model = Sequential()
-        model.add(LSTM(64,
-            dropout=0.20,
-            recurrent_dropout=0.35,
-            activation='sigmoid',
-            input_shape=(self.input_dim, self.feature_length)
-        ))
-        model.add(Dense(self.output_dim, activation='sigmoid'))
+        if mode == 'DRNN':
+            model = Sequential([
+                LSTM(
+                    150,
+                    activation='sigmoid',
+                    dropout=0.65,
+                    recurrent_dropout=0.50,
+                    return_sequences=True,
+                    input_shape=(self.input_dim, self.feature_length)
+                ),
+                LSTM(
+                    150,
+                    activation='sigmoid',
+                    dropout=0.65,
+                    recurrent_dropout=0.50,
+                    input_shape=(self.input_dim, self.feature_length)
+                ),
+                Dense(
+                    self.output_dim,
+                    activation='sigmoid'
+                ),
+            ])
+
+        elif mode == 'MLP':
+            model = Sequential([
+                Dense(
+                    100,
+                    activation='sigmoid',
+                    input_shape=(self.input_dim, self.feature_length)
+                ),
+                Dropout(0.65),
+                Dense(
+                    100,
+                    activation='sigmoid',
+                    input_shape=(self.input_dim, self.feature_length)
+                ),
+                Dropout(0.65),
+                Dense(
+                    100,
+                    activation='sigmoid',
+                    input_shape=(self.input_dim, self.feature_length)
+                ),
+                Dropout(0.65),
+                Flatten(),
+                Dense(
+                    self.output_dim,
+                    activation='sigmoid'
+                ),
+            ])
 
         model.compile(
-            optimizer=optimizers.SGD(lr=0.01),
+            optimizer=optimizers.SGD(lr=0.1),
             loss='mse',
-            metrics=['mae', 'logcosh']
+            metrics=['mae']
         )
 
         return model
 
-
-    def train_model(self, model, input, output, epochs, split=0, model_name='Model'):
+    def train_model(self, model, training_input, training_output, epochs, split=0, model_name='Model'):
         """
         Trains the model and saves it in HDF5 format.
         ARGUMENTS:
-            - model:        neural network model
-            - input:        input sequence
-            - output:       output sequence
-            - epochs:       num of epochs
-            - split:        percentage of training and test split
-            - model_name:   name of model to be saved
+            - model:                neural network model
+            - training_input:       training_input sequence
+            - training_output:      training_output sequence
+            - epochs:               num of epochs
+            - split:                percentage of training and test split
+            - model_name:           name of model to be saved
         """
         start_training = time()
+        csv_logger = CSVLogger(join(abspath(dirname(__file__)), './data/{}.log'.format(model_name)))
         history = model.fit(
-            array(input),
-            array(output),
+            array(training_input),
+            array(training_output),
             epochs=epochs,
-            validation_split=split
+            batch_size=len(training_output),
+            validation_split=split,
+            callbacks=[csv_logger]
         )
         end_training = time()
 
         self.training_time = end_training - start_training
 
         model.save(join(abspath(dirname(__file__)), './data/{}.h5'.format(model_name)))
+        print('Model {}.h5 saved.'.format(model_name))
+        print('Log {}.log saved.'.format(model_name))
 
-        return history, self.training_time
+        return history
 
-
-    def test_model(self, model, input_seq, output_seq):
-        x_test = input_seq[int(floor(len(input_seq) * 0.8)):]
-        y_test = output_seq[int(floor(len(output_seq) * 0.8)):]
-
-        score = model.evaluate(x_test, y_test, verbose=0)
-        print("Test score: ", score[0])
-        print("Test accuracy: ", score[1])
+    def plot_history(self, history_file, model_name):
+        history = genfromtxt(history_file, delimiter=',', names=True)
+        plt.plot(history['loss'])
+        plt.plot(history['val_loss'])
+        plt.title('Model Loss ({})'.format(model_name))
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.legend(['train', 'test'], loc='upper right')
+        plt.show()
 
 
 if __name__ == '__main__':
-    train = Train()
+    model_name = 'DRNN'
 
-    model = train.build_model()
+    train = Train()
+    model = train.build_model('{}'.format(model_name))
 
     input_sequence, output_sequence = train.create_sequence(train.input_csv, train.output_csv)
 
-    history, time = train.train_model(model, input_sequence, output_sequence, 10000)
+    # training_data_X = input_sequence[:int(floor(len(input_sequence) * .60))]
+    # training_data_Y = output_sequence[:int(floor(len(output_sequence) * .60))]
 
-    # plt.plot(history.history['loss'])
-    # plt.plot(history.history['mean_absolute_error'])
-    # plt.show()
+    # test_data_X = input_sequence[int(floor(len(input_sequence) * .60)):]
+    # test_data_Y = output_sequence[int(floor(len(output_sequence) * .60)):]
 
-    print "Training time: {}".format(time)
+    # history = train.train_model(model, (training_data_X), training_data_Y, 1000, 0.2, model_name=model_name)
+    # print "Training time: {}".format(train.training_time)
+
+    # score = model.evaluate(array(test_data_X), array(test_data_Y), batch_size=len(test_data_Y), verbose=0)
+    # print('Scores:\nMSE: {}\tMAE: {}'.format(*score))
+
+    # train.plot_history(join(abspath(dirname(__file__)), './data/{}.log').format(model_name), model_name)

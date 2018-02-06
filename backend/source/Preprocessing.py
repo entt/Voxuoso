@@ -42,7 +42,7 @@ if __name__ == '__main__':
         abspath,
         dirname,
     )
-    
+
     audio_dir = join(abspath(dirname(__file__)), '/data/Voices/')
 
     audio_files = [join(audio_dir, f)

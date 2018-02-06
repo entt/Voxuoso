@@ -5,9 +5,8 @@ from os.path import (
     dirname,
 )
 
-module_directory = abspath(dirname(__file__))
-results_dir = join(module_directory, './data/AVQI Results.txt')
-csv_dir = join(module_directory, './data/Outputs.csv')
+results_dir = join(abspath(dirname(__file__)), 'data/AVQI Results.txt')
+csv_dir = join(abspath(dirname(__file__)), 'data/Outputs.csv')
 
 fields = ['file_name', 'avqi_result']
 

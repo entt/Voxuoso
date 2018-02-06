@@ -4,8 +4,9 @@ import {
   Image,
   Slider,
   StyleSheet,
+  Switch,
   Text,
-  TouchableHighlight,
+  TouchableNativeFeedback,
   View,
 } from 'react-native';
 import Expo, { Asset, Audio, FileSystem, Font, Permissions } from 'expo';
@@ -340,13 +341,13 @@ export default class Record extends React.Component {
           <View />
           <View style={styles.recordingContainer}>
             <View />
-            <TouchableHighlight
+            <TouchableNativeFeedback
               underlayColor={BACKGROUND_COLOR}
               style={styles.wrapper}
               onPress={this._onRecordPressed}
               disabled={this.state.isLoading}>
               <Image style={styles.image} source={ICON_RECORD_BUTTON.module} />
-            </TouchableHighlight>
+            </TouchableNativeFeedback>
             <View style={styles.recordingDataContainer}>
               <View />
               <Text style={[styles.liveText, { fontFamily: 'cutive-mono-regular' }]}>
@@ -390,7 +391,7 @@ export default class Record extends React.Component {
           </View>
           <View style={[styles.buttonsContainerBase, styles.buttonsContainerTopRow]}>
             <View style={styles.volumeContainer}>
-              <TouchableHighlight
+              <TouchableNativeFeedback
                 underlayColor={BACKGROUND_COLOR}
                 style={styles.wrapper}
                 onPress={this._onMutePressed}
@@ -399,7 +400,7 @@ export default class Record extends React.Component {
                   style={styles.image}
                   source={this.state.muted ? ICON_MUTED_BUTTON.module : ICON_UNMUTED_BUTTON.module}
                 />
-              </TouchableHighlight>
+              </TouchableNativeFeedback>
               <Slider
                 style={styles.volumeSlider}
                 trackImage={ICON_TRACK.module}
@@ -410,7 +411,7 @@ export default class Record extends React.Component {
               />
             </View>
             <View style={styles.playStopContainer}>
-              <TouchableHighlight
+              <TouchableNativeFeedback
                 underlayColor={BACKGROUND_COLOR}
                 style={styles.wrapper}
                 onPress={this._onPlayPausePressed}
@@ -419,19 +420,26 @@ export default class Record extends React.Component {
                   style={styles.image}
                   source={this.state.isPlaying ? ICON_PAUSE_BUTTON.module : ICON_PLAY_BUTTON.module}
                 />
-              </TouchableHighlight>
-              <TouchableHighlight
+              </TouchableNativeFeedback>
+              <TouchableNativeFeedback
                 underlayColor={BACKGROUND_COLOR}
                 style={styles.wrapper}
                 onPress={this._onStopPressed}
                 disabled={!this.state.isPlaybackAllowed || this.state.isLoading}>
                 <Image style={styles.image} source={ICON_STOP_BUTTON.module} />
-              </TouchableHighlight>
+              </TouchableNativeFeedback>
             </View>
             <View />
           </View>
           <View style={[styles.buttonsContainerBase, styles.buttonsContainerBottomRow]}>
-            <TouchableHighlight
+            <Text style={[styles.textButton, { fontFamily: 'cutive-mono-regular' }]}>
+                MLP
+            </Text>
+            <Switch/>
+            <Text style={[styles.textButton, { fontFamily: 'cutive-mono-regular' }]}>
+                DRNN
+              </Text>
+            <TouchableNativeFeedback
               underlayColor={BACKGROUND_COLOR}
               style={styles.wrapper}
               onPress={this._onSendPressed}
@@ -439,7 +447,7 @@ export default class Record extends React.Component {
               <Text style={[styles.textButton, { fontFamily: 'cutive-mono-regular' }]}>
                 Send
               </Text>
-            </TouchableHighlight>
+            </TouchableNativeFeedback>
           </View>
           <View />
         </View>
@@ -564,6 +572,8 @@ const styles = StyleSheet.create({
     width: DEVICE_WIDTH / 2.0 - ICON_MUTED_BUTTON.width,
   },
   buttonsContainerBottomRow: {
+    flex: 1,
+    flexDirection: 'row',
     maxHeight: ICON_THUMB.height,
     alignItems: 'center',
     alignSelf: 'center',

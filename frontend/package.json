@@ -2,7 +2,7 @@
   "name": "Voxuoso",
   "version": "1.0.0",
   "description": "Laryngitis detection app.",
-  "author": null,
+  "author": "Roent Jogno",
   "private": true,
   "main": "node_modules/expo/AppEntry.js",
   "dependencies": {
@@ -10,5 +10,9 @@
     "expo": "^21.0.0",
     "react": "16.0.0-alpha.12",
     "react-native": "https://github.com/expo/react-native/archive/sdk-21.0.2.tar.gz"
+  },
+  "devDependencies": {
+    "exp": "^49.1.0",
+    "react-native-cli": "^2.0.1"
   }
 }
