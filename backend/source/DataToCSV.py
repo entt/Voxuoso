@@ -29,7 +29,6 @@ with open(csv_dir, 'w+') as write:
 
     for line in write:
         for file in audio_files:
-            print(line, file)
             print 'Current file: ' + file.split('/')[-1]
             features = FE.feature_extraction(file)
             writer.writerow({
