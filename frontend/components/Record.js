@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import Expo, { Asset, Audio, FileSystem, Font, Permissions } from 'expo';
+import axios from 'axios';
 
 class Icon {
   constructor(module, width, height) {
@@ -78,6 +79,7 @@ export default class Record extends React.Component {
       shouldCorrectPitch: true,
       volume: 1.0,
       rate: 1.0,
+      isDRNN: false,
     };
     this.recordingSettings = RECORDING_SETTINGS;
   }
@@ -239,11 +241,19 @@ export default class Record extends React.Component {
   };
 
   _onSendPressed = () => {
-    alert("This button should send sound to API.");
-  };
-
-  _onTrashPressed = () => {
-    this.sound = null;
+    soundData = new FormData()
+    
+    soundData.append('sound_file', this.sound)
+    soundData.append('DRNN', this.isDRNN)
+    
+    axios.post('http://192.168.254.104:5000/api/v1/voice', soundData)
+      .then(function (response) {
+        alert('DRNN on?' + this.isDRNN)
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
   };
 
   _onVolumeSliderValueChange = value => {
@@ -435,7 +445,10 @@ export default class Record extends React.Component {
             <Text style={[styles.textButton, { fontFamily: 'cutive-mono-regular' }]}>
                 MLP
             </Text>
-            <Switch/>
+            <Switch
+              onValueChange={(value) => {this.setState({isDRNN: !this.state.isDRNN})}}
+              value={this.state.isDRNN}
+            />
             <Text style={[styles.textButton, { fontFamily: 'cutive-mono-regular' }]}>
                 DRNN
               </Text>

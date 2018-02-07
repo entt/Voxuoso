@@ -1,5 +1,8 @@
 from keras import optimizers
-from keras.models import Sequential
+from keras.models import (
+    Sequential,
+    load_model
+)
 from keras.layers import (
     Dense,
     Flatten,
@@ -36,21 +39,30 @@ class Train:
         - Training
         - Plot Loss History
     =========================
-    Roent Jogno AY 2017 - 2018
+        Roent Jogno AY 2017 - 2018
     """
     def __init__(self):
         self.input_csv = join(abspath(dirname(__file__)), './data/Inputs.csv')
         self.output_csv = join(abspath(dirname(__file__)), './data/Outputs.csv')
 
-        self.feature_length = 100
-        self.input_dim = 13
+        self.input_sequence, self.output_sequence = self.create_sequence(self.input_csv, self.output_csv)
+
+        self.training_data_X = self.input_sequence[:int(floor(len(self.input_sequence) * .90))]
+        self.training_data_Y = self.output_sequence[:int(floor(len(self.output_sequence) * .90))]
+
+        self.test_data_X = self.input_sequence[int(floor(len(self.input_sequence) * .90)):]
+        self.test_data_Y = self.output_sequence[int(floor(len(self.output_sequence) * .90)):]
+
+        self.timesteps = 100
+        self.training_batch_size = len(self.training_data_Y)
+        self.test_batch_size = len(self.test_data_Y)
+        self.input_dim = 6
         self.output_dim = 1
 
         self.headers = [
-            'MFCC1', 'MFCC2', 'MFCC3', 'MFCC4',
-            'MFCC5', 'MFCC6', 'MFCC7', 'MFCC8',
-            'MFCC9', 'MFCC10', 'MFCC11', 'MFCC12',
-            'MFCC13'
+            'ZCR', 'EnergyEntropy',
+            'SpectralCentroid', 'SpectralSpread',
+            'SpectralEntropy', 'SpectralFlux'
         ]
 
         self.training_time = 0
@@ -68,15 +80,22 @@ class Train:
         input_sequence = []
         output_sequence = []
 
+        headers = [
+            'ZCR', 'EnergyEntropy',
+            'SpectralCentroid', 'SpectralSpread',
+            'SpectralEntropy', 'SpectralFlux'
+        ]
+        timesteps = 100
+
         input_df = read_csv(self.input_csv)
         output_df = read_csv(self.output_csv)
 
         for index, row in input_df.iterrows():
-            mfcc_sequence = []
-            for MFCC in self.headers:
-                mfcc_arr = array(row[MFCC].strip('[]').split())
-                mfcc_sequence.append(mfcc_arr.astype(float))
-            input_sequence.append(mfcc_sequence)
+            parameter_sequence = []
+            for parameters in headers:
+                parameter_array = array(row[parameters].strip('[]').split())
+                parameter_sequence.append(parameter_array.astype(float))
+            input_sequence.append(parameter_sequence)
 
         for index, row in output_df.iterrows():
             output_sequence.append(array(row['avqi_result']))
@@ -84,7 +103,7 @@ class Train:
         for index, item in enumerate(input_sequence):
             for f_index, feature in enumerate(item):
                 feature = pad(feature,
-                    (0, self.feature_length - len(feature)),
+                    (0, timesteps - len(feature)),
                     'constant',
                     constant_values = (0, feature[-1])
                 )
@@ -94,8 +113,6 @@ class Train:
         unique_output = unique(output_sequence)
         boundaries = linspace(0, 1.0, num=len(unique_output))
         interpolated = interp(output_sequence, unique_output, boundaries)
-
-        print(interpolated)
 
         for index, item in enumerate(interpolated):
             output_sequence[index] = array(item)
@@ -114,18 +131,15 @@ class Train:
             model = Sequential([
                 LSTM(
                     150,
-                    activation='sigmoid',
-                    dropout=0.65,
-                    recurrent_dropout=0.50,
+                    dropout=0.25,
+                    recurrent_dropout=0.25,
                     return_sequences=True,
-                    input_shape=(self.input_dim, self.feature_length)
+                    input_shape=(self.input_dim, self.timesteps)
                 ),
                 LSTM(
                     150,
-                    activation='sigmoid',
-                    dropout=0.65,
-                    recurrent_dropout=0.50,
-                    input_shape=(self.input_dim, self.feature_length)
+                    dropout=0.25,
+                    recurrent_dropout=0.25,
                 ),
                 Dense(
                     self.output_dim,
@@ -136,23 +150,12 @@ class Train:
         elif mode == 'MLP':
             model = Sequential([
                 Dense(
-                    100,
-                    activation='sigmoid',
-                    input_shape=(self.input_dim, self.feature_length)
+                    150,
+                    input_shape=(self.input_dim, self.timesteps)
                 ),
-                Dropout(0.65),
-                Dense(
-                    100,
-                    activation='sigmoid',
-                    input_shape=(self.input_dim, self.feature_length)
-                ),
-                Dropout(0.65),
-                Dense(
-                    100,
-                    activation='sigmoid',
-                    input_shape=(self.input_dim, self.feature_length)
-                ),
-                Dropout(0.65),
+                Dropout(0.25),
+                Dense(150),
+                Dropout(0.25),
                 Flatten(),
                 Dense(
                     self.output_dim,
@@ -161,7 +164,7 @@ class Train:
             ])
 
         model.compile(
-            optimizer=optimizers.SGD(lr=0.1),
+            optimizer=optimizers.SGD(lr=0.001),
             loss='mse',
             metrics=['mae']
         )
@@ -185,8 +188,8 @@ class Train:
             array(training_input),
             array(training_output),
             epochs=epochs,
-            batch_size=len(training_output),
-            validation_split=split,
+            batch_size=self.training_batch_size,
+            validation_split=0.2,
             callbacks=[csv_logger]
         )
         end_training = time()
@@ -211,23 +214,18 @@ class Train:
 
 
 if __name__ == '__main__':
-    model_name = 'DRNN'
+    model_name = 'MLP'
 
     train = Train()
+    # Load existing model
+    # model = load_model(join(abspath(dirname(__file__)), './data/{}.h5'.format(model_name)))
+
+    # Create model
     model = train.build_model('{}'.format(model_name))
+    history = train.train_model(model, train.training_data_X, train.training_data_Y, 1000, 0.2, model_name=model_name)
+    print "Training time: {}".format(train.training_time)
 
-    input_sequence, output_sequence = train.create_sequence(train.input_csv, train.output_csv)
+    score = model.evaluate(array(train.test_data_X), array(train.test_data_Y), batch_size=train.test_batch_size, verbose=0)
+    print('Scores:\nMSE: {}\tMAE: {}'.format(*score))
 
-    # training_data_X = input_sequence[:int(floor(len(input_sequence) * .60))]
-    # training_data_Y = output_sequence[:int(floor(len(output_sequence) * .60))]
-
-    # test_data_X = input_sequence[int(floor(len(input_sequence) * .60)):]
-    # test_data_Y = output_sequence[int(floor(len(output_sequence) * .60)):]
-
-    # history = train.train_model(model, (training_data_X), training_data_Y, 1000, 0.2, model_name=model_name)
-    # print "Training time: {}".format(train.training_time)
-
-    # score = model.evaluate(array(test_data_X), array(test_data_Y), batch_size=len(test_data_Y), verbose=0)
-    # print('Scores:\nMSE: {}\tMAE: {}'.format(*score))
-
-    # train.plot_history(join(abspath(dirname(__file__)), './data/{}.log').format(model_name), model_name)
+    train.plot_history(join(abspath(dirname(__file__)), './data/{}.log').format(model_name), model_name)
