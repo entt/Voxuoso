@@ -17,3 +17,7 @@ pandas==0.21.1
 numpy==1.13.3
 tensorflow==1.4.1
 h5py==2.7.1
+seaborn==0.8.1
+matplotlib==2.0.2
+sounddevice==0.3.10
+Pillow==4.2.1

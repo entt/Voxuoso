@@ -17,10 +17,8 @@ from numpy import (
     pad,
     linspace,
     interp,
-    unique,
-    genfromtxt
+    unique
 )
-import matplotlib.pyplot as plt
 
 from math import floor
 from os.path import (
@@ -29,6 +27,7 @@ from os.path import (
     abspath,
 )
 from time import time
+import argparse
 
 
 class Train:
@@ -102,10 +101,11 @@ class Train:
 
         for index, item in enumerate(input_sequence):
             for f_index, feature in enumerate(item):
-                feature = pad(feature,
+                feature = pad(
+                    feature,
                     (0, timesteps - len(feature)),
                     'constant',
-                    constant_values = (0, feature[-1])
+                    constant_values=(0, feature[-1])
                 )
                 item[f_index] = feature
             input_sequence[index] = item
@@ -202,30 +202,26 @@ class Train:
 
         return history
 
-    def plot_history(self, history_file, model_name):
-        history = genfromtxt(history_file, delimiter=',', names=True)
-        plt.plot(history['loss'])
-        plt.plot(history['val_loss'])
-        plt.title('Model Loss ({})'.format(model_name))
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper right')
-        plt.show()
-
 
 if __name__ == '__main__':
-    model_name = 'MLP'
+    parser = argparse.ArgumentParser(description='Data visualization.')
+    parser.add_argument('--mode', type=str)
+    args = parser.parse_args()
+
+    if args.mode == 'MLP':
+        model_name = 'MLP'
+    elif args.mode == 'DRNN':
+        model_name = 'DRNN'
 
     train = Train()
+
     # Load existing model
-    # model = load_model(join(abspath(dirname(__file__)), './data/{}.h5'.format(model_name)))
+    model = load_model(join(abspath(dirname(__file__)), './data/{}.h5'.format(model_name)))
 
     # Create model
-    model = train.build_model('{}'.format(model_name))
-    history = train.train_model(model, train.training_data_X, train.training_data_Y, 1000, 0.2, model_name=model_name)
-    print "Training time: {}".format(train.training_time)
+    # model = train.build_model('{}'.format(model_name))
+    # history = train.train_model(model, train.training_data_X, train.training_data_Y, 5000, 0.2, model_name=model_name)
+    # print "Training time: {}".format(train.training_time)
 
     score = model.evaluate(array(train.test_data_X), array(train.test_data_Y), batch_size=train.test_batch_size, verbose=0)
     print('Scores:\nMSE: {}\tMAE: {}'.format(*score))
-
-    train.plot_history(join(abspath(dirname(__file__)), './data/{}.log').format(model_name), model_name)

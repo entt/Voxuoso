@@ -241,19 +241,18 @@ export default class Record extends React.Component {
   };
 
   _onSendPressed = () => {
-    soundData = new FormData()
-    
-    soundData.append('sound_file', this.sound)
-    soundData.append('DRNN', this.isDRNN)
-    
-    axios.post('http://192.168.254.104:5000/api/v1/voice', soundData)
-      .then(function (response) {
-        alert('DRNN on?' + this.isDRNN)
-        console.log(response);
+    const soundData = new FormData();
+
+    soundData.append('sound', this.sound);
+    soundData.append('isDRNN', this.isDRNN);
+
+    axios.post('http://0.0.0.0:5000/api/v1/voice', soundData)
+      .then(response => {
+        alert(response.data)
       })
-      .catch(function (error) {
-        console.log(error);
-      });
+      .catch(error => {
+        console.log(error)
+      })
   };
 
   _onVolumeSliderValueChange = value => {

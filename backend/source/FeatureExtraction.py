@@ -12,7 +12,7 @@ class FeatureExtraction:
     Roent Jogno AY 2017 - 2018
     """
 
-    def feature_extraction(self, audio):
+    def feature_extraction(self, signal, audio=None):
         """
         Extracts features from audio file.
             -0:         Zero Crossing Rate
@@ -27,18 +27,19 @@ class FeatureExtraction:
             -21-32:     Chroma Vector
             -33:        Chroma Deviation
         ARGUMENTS:
-            - audio:    the input audio signal
+            - audio:    the input audio file
         RETURNS:
             - features: an array of features (numOfFeatures x numOfWindows)
         """
-
         [sample_rate, signal] = aIO.readAudioFile(audio)
-        features = aFE.stFeatureExtraction(
-            signal,
-            sample_rate,
-            0.05 * sample_rate,
-            0.05 * sample_rate,
-        )
+
+        if audio is None:
+            features = aFE.stFeatureExtraction(
+                signal,
+                sample_rate,
+                0.05 * sample_rate,
+                0.05 * sample_rate,
+            )
 
         return features
 
