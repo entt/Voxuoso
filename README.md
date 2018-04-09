@@ -1,5 +1,5 @@
 # Voxuoso
-A laryngitis mobile detection app, which will use Deep Recurrent Neural Networks (DRNN) and objective acoustic parameters.
+A laryngitis mobile detection app, which will use LSTM-RNN and Acoustic Voice Quality Index (AVQI).
 
 ## About
 This is a ReactNative mobile application served over Flask microframework.
